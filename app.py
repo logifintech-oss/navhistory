@@ -47,24 +47,44 @@ with st.sidebar:
     st.header("Settings")
     uploaded_file = st.file_uploader("Upload NAV Changes Excel File", type=["xls", "xlsx"])
     
-    # Try to load default file if no file is uploaded
-    if uploaded_file is None:
-        default_file = "NAV-Changes.xls"
-        if os.path.exists(default_file):
+    persistent_file = "last_updated_nav_data.xls"
+    
+    # Logic to keep the last updated file
+    if uploaded_file is not None:
+        # Save the uploaded file locally to persist it
+        with open(persistent_file, "wb") as f:
+            f.write(uploaded_file.getbuffer())
+        st.success("File uploaded and saved as default!")
+        df = load_data(uploaded_file)
+    else:
+        # If no file is uploaded, try the last saved persistent file first
+        if os.path.exists(persistent_file):
             try:
                 for h in [3, 0, 4, 2, 1]:
-                    temp_df = pd.read_excel(default_file, engine='xlrd', header=h)
+                    temp_df = pd.read_excel(persistent_file, engine='xlrd', header=h)
                     if 'Scheme Name' in temp_df.columns:
                         df = temp_df
-                        st.info(f"Using default file: {default_file}")
+                        st.info("Using last updated data.")
                         break
             except:
                 df = None
-        else:
-            df = None
+        
+        # Fallback to original default file if no persistent file or if loading failed
+        if df is None:
+            default_file = "NAV-Changes.xls"
+            if os.path.exists(default_file):
+                try:
+                    for h in [3, 0, 4, 2, 1]:
+                        temp_df = pd.read_excel(default_file, engine='xlrd', header=h)
+                        if 'Scheme Name' in temp_df.columns:
+                            df = temp_df
+                            st.info(f"Using default file: {default_file}")
+                            break
+                except:
+                    df = None
+        
+        if df is None:
             st.warning("Please upload an Excel file or ensure 'NAV-Changes.xls' exists.")
-    else:
-        df = load_data(uploaded_file)
 
     if df is not None:
         view_mode = st.radio("Select View Mode", ["Power of Compounding", "52 Week High/Low Analysis"])
