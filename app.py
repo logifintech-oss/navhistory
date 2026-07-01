@@ -74,6 +74,10 @@ st.title("🚀 Power of Compounding - Lumpsum Investment")
 with st.sidebar:
     st.header("Settings")
     uploaded_file = st.file_uploader("Upload NAV Changes Excel File", type=["xls", "xlsx"])
+    if st.button("Clear Cache"):
+        st.cache_data.clear()
+        st.cache_resource.clear()
+        st.success("Cache cleared!")
     
     persistent_file = "last_updated_nav_data.xls"
     
@@ -160,7 +164,7 @@ if df is not None:
         details_df = pd.DataFrame(details_table_data)
         
         # Display as a proper table with no headers for exact look
-        st.dataframe(details_df, use_container_width=True, hide_index=True, column_config={})
+        st.data_editor(details_df, use_container_width=True, hide_index=True, column_config={}, disabled=True)
         
         st.markdown("""
         <div style="display: flex; background-color: #FFD700; padding: 10px; border-radius: 5px 5px 0 0; margin-top: 10px;">
@@ -186,7 +190,7 @@ if df is not None:
             display_df = pd.DataFrame(table_data)
             
             # Display as a proper Streamlit table for easy copying
-            st.dataframe(display_df, use_container_width=True, hide_index=True)
+            st.data_editor(display_df, use_container_width=True, hide_index=True, disabled=True)
             
         else:
             st.error("Latest NAV data missing or invalid.")
@@ -244,7 +248,7 @@ if df is not None:
         shorts_df = pd.DataFrame(shorts_data[1:], columns=shorts_data[0])
         
         st.subheader("📱 YouTube Shorts Data Format")
-        st.dataframe(shorts_df, use_container_width=True, hide_index=True)
+        st.data_editor(shorts_df, use_container_width=True, hide_index=True, disabled=True)
         
         # Grid format for quick copy-pasting
         st.subheader("📋 Quick Copy Grid")
@@ -256,7 +260,7 @@ if df is not None:
             [f"ALL-TIME HIGH: ₹ {highest_nav:.2f}", f"DATE: {highest_date}"],
             [f"ALL-TIME LOW: ₹ {lowest_nav:.2f}", f"DATE: {lowest_date}"]
         ]
-        st.dataframe(pd.DataFrame(grid_data), use_container_width=True, hide_index=True)
+        st.data_editor(pd.DataFrame(grid_data), use_container_width=True, hide_index=True, disabled=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
     st.caption("Mutual Fund investments are subject to market risks, read all scheme related documents carefully. The past performance of the mutual funds is not necessarily indicative of future performance of the schemes.")
